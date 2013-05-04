@@ -1,0 +1,4 @@
+- Joins that are not directly related
+- SQL at the top level 
+- Make it more SQL agnostic
+- Transactions?
