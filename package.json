@@ -1,8 +1,16 @@
 {
+  "name": "okapi",
+  "version": "0.0.1",
+  "tags": "mysql sqlite postgres sql orm",
+  "description": "A relatively light tool to help construct SQL queries; Okapi is not an ORM",
+  "scripts": {
+    "test": "(cd test && node all.js)"
+  },
   "dependencies": {
     "colors": "~0.6.0-1",
     "mysql": "~2.0.0-alpha8",
     "pg": "~1.1.0",
-    "sqlite3": "~2.1.7"
+    "sqlite3": "~2.1.7",
+    "prettyjson": "~0.8.1"
   }
 }
