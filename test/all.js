@@ -12,8 +12,8 @@ var testUser = require('./user');
 
 var databases = [
 
-	new DAO.MySQLDialect({  host:"localhost", user:"root", database:"dao" }),
-	new DAO.PGSQLDialect({  host:"localhost", user:"celer", database:"dao", password:"foo", debug: true }),
+	new DAO.MySQLDialect({  host:"localhost", user:"root", database:"okapi" }),
+	new DAO.PGSQLDialect({  host:"localhost", user:"postgres", database:"okapi"}),
 	new DAO.SQLiteDialect(new sqlite.Database(":memory:")),
 
 ];
