@@ -43,28 +43,60 @@ var testUser = function(dialect,onComplete){
 			(vehicle.createTable()),
 
 
-			person.insert({ name:"bob" }).contains({ name:"bob" }).async(),
+			person.insert({ name:"bob" }).assert("Basic inserts with strings work",function(q){ 
+										q.contains({ name:"bob" });
+									}),
 
-			person.update({enabled:1 }).contains({ changedRows:1 }).async(),
+			person.update({enabled:1 }).assert("Basic updates on all rows with numbers work",function(q){
+										q.contains({ changedRows:1 });
+									}),
 
-			person.insert({ name:"wolf"}).contains({ name:"wolf"}).async(),
-			person.insert({ name:"person1"}).contains({ name:"person1"}).async(),
-			person.insert({ name:"person2"}).contains({ name:"person2"}).async(),
-			person.insert({ name:"person3"}).contains({ name:"person3"}).async(),
-			person.find({name:"bob"}).containsRow({name:"bob"}).rowsReturned(1).async(),
-			person.find(1).containsRow({ name:"bob"}).async(),
+			person.insert({ name:"wolf"}).assert("Inserts return the same values as input",function(q){
+										q.contains({ id:2, name:"wolf"});
+									}),
+
+			person.insert({ name:"person1"}).async(),
+			person.insert({ name:"person2"}).async(),
+			person.insert({ name:"person3"}).async(),
+
+
+			person.find({name:"bob"}).assert("We can find something we previously inserted",function(q){
+										q.containsRow({ id: 1, name:"bob"});
+										q.rowsReturned(1);
+									}),
+
+			person.find(1).assert("We can find something by it's id",function(q){
+										q.containsRow({ id: 1, name:"bob"});
+										q.rowsReturned(1);
+									}),
+
 			person.find(function(q){ 
 				q.ne("name","wolf");
-			}).containsRow({ name:"bob"}).async(),
-			person.update({ id: 1, name:"foo"}).contains({ changedRows: 1}).async(),
-			person.update({enabled:0}).where({name: "foo"}).contains({ changedRows: 1}).async(),
-			person.find({ id: 1 }).containsRow({name:"foo", enabled:0 }).async(),
-			person.find(function(q){ 
-				//Do a find with no conditions
-			}).containsRow({ name:"foo" }).rowsReturned(5).async(),
+			}).assert("Not equal to operater works in queries",function(q){
+										q.containsRow({ name:"bob"});
+										q.lacksRow({ name:"wolf"});
+									}),
+
+			person.update({ id: 1, name:"foo"}).assert("We can update something by utilizing it's ID and the columns to set",function(q){
+										q.contains({ changedRows: 1});
+									}),
+
+			person.update({enabled:0}).where({name: "foo"}).assert("We can update a field in something using a conditional",function(q){
+										q.contains({ changedRows: 1});
+									}),
+
+			person.find({ id: 1 }).assert("Our two previous updates worked",function(q){
+										q.containsRow({name:"foo", enabled:0 });
+									}),
+
+			person.find(function(q){ }).assert("A find with no conditionals works",function(q){
+										q.containsRow({ name:"foo" });
+										q.rowsReturned(5)
+									}),
+
 			person.find(function(q){ 
 				q.in("name",[ "bob","wolf","person1"]);
-			}).containsRow({ name:"person1" }).containsRow({name:"wolf"}).rowsReturned(2).async(),
+			}).assert("A find with an 'in' conditional works",function(q){ q.containsRow({ name:"person1" }).containsRow({name:"wolf"}).rowsReturned(2); }),
 			
 			person.find(function(q){ 
 				q.in("name",[ "bob","wolf","person1"]);	
@@ -72,15 +104,20 @@ var testUser = function(dialect,onComplete){
 					q.eq("name","person1");
 					q.eq("name","wolf");
 				});
-			}).containsRow({ name:"person1" }).containsRow({name:"wolf"}).rowsReturned(2).async(),
+			}).assert("A find with an 'in' and other conditionals works",function(q){ q.containsRow({ name:"person1" }).containsRow({name:"wolf"}).rowsReturned(2); }),
 			
 			person.find(function(q){ 
 				q.lt("id",2);
-			}).containsRow({ name:"foo"}).rowsReturned(1).async(),
+			}).assert("A find with an 'lt' works",function(q) { q.containsRow({ name:"foo"}).rowsReturned(1); }),
+
 			person.find(function(q){ 
 				q.lte("id",2);
-			}).containsRow({ name:"foo"}).rowsReturned(2).async(),
-			person.update({ email:"test@foo.com"}).where({name:"wolf"}).contains({ changedRows:1 }).async(),
+			}).assert("A find with an 'lte' works",function(q){ q.containsRow({ name:"foo"}).rowsReturned(2) }),
+
+
+			person.update({ email:"test@foo.com"}).where({name:"wolf"}).assert("An update with a where condition works",function(q){ q.contains({ changedRows:1 }); }),
+
+
 			person.find(function(q){
 				q.notNull("email");
 			}).containsRow({ name:"wolf", email:"test@foo.com"}).async(),
@@ -115,22 +152,36 @@ var testUser = function(dialect,onComplete){
 
 			vehicle.find().join(person,"driverId", null, { as: "driver", type: "left" }).join(person,"ownerId", { name:"foo"}, { as:"owner"}).join(profile,"personId",null,{ as:"ownerProfile", on: "owner" }).rowsReturned(3).async(),
 
-			vehicle.sqlQuery("update vehicle set model=?model1? where model=?model2?",{model1:'Miata', model2:'Miata'},"update").contains({changedRows:1}).async(),
+			vehicle.sqlQuery("update vehicle set model=?model1? where model=?model2?",{model1:'Miata', model2:'Miata'},"update").assert("Raw SQL Updates work",function(q){ 
+													q.contains({changedRows:1})
+												}),
 
-			vehicle.sqlQuery("select * from vehicle",{},"select").rowsReturned(3).containsRow({ model:"Miata" }).async(),
+			vehicle.sqlQuery("select * from vehicle",{},"select").assert("Raw SQL Queries work",function(q){
+													q.rowsReturned(3)
+													q.containsRow({ model:"Miata" })
+												}),
 
 			//Test Where Exp
 			vehicle.find().whereExp("model='Miata'").rowsReturned(1).containsRow({ model:'Miata'}).async(),
 			
-			vehicle.find().whereExp("0=1").rowsReturned(0).async(),
+			vehicle.find().whereExp("0=1").assert("WhereExp works with a fixed phrase",function(q){ 
+													q.rowsReturned(0);
+												}),
 			
-			vehicle.find({make:"Jeep"}).whereExp(" and 0=1").rowsReturned(0).async(),
+			vehicle.find({make:"Jeep"}).where({model:"Cherokee"}).whereExp(" and 0=1").assert("WhereExp works with static string and a where clause",function(q){
+													q.rowsReturned(0);
+												}),
 			
-			vehicle.find().whereExp("model=?model?", { model: "Miata"} ).rowsReturned(1).containsRow({ model:'Miata'}).async(),
+			vehicle.find().whereExp("model=?model?", { model: "Miata"} ).assert("WhereExp works with injected parameters",function(q){ 
+													q.rowsReturned(1)
+													q.containsRow({ model:'Miata'})
+												}),
 
 
 			//Test Delete
-			vehicle.find().rowsReturned(3).async(),
+			vehicle.find().assert("There are things to delete",function(q){
+													q.rowsReturned(3);
+												}),
 
 			vehicle.delete().where({model:"Lagonda"}).assert("Can delete specific rows using where clause",function(q){
 													q.noError();
@@ -158,7 +209,7 @@ var testUser = function(dialect,onComplete){
 
 			person.insert({ name: "dennis", email:"Foo@foo.com"}).assert("Returns one common duplicate key error",function(q){
 													q.hasError("Duplicate key:name");
-											}),
+											},true),
 
 
 			person.find().page(0,2).orderBy("name","desc").orderBy("email","desc").assert("Can use multiple order by's",function(q){
