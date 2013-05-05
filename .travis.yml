@@ -1,5 +1,5 @@
  language: node_js
-node_js: "0.8"
-before_script:
-	- mysql -e 'create database okapi;'
-	- psql -c 'create database okapi;' -U posgres
+ node_js: "0.8"
+ before_script:
+		- mysql -e 'create database okapi;'
+		- psql -c 'create database okapi;' -U posgres
