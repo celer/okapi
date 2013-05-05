@@ -43,28 +43,28 @@ var testUser = function(dialect,onComplete){
 			(vehicle.createTable()),
 
 
-			person.insert({ name:"bob" }).assertContains({ name:"bob" }).async(),
+			person.insert({ name:"bob" }).contains({ name:"bob" }).async(),
 
-			person.update({enabled:1 }).assertContains({ changedRows:1 }).async(),
+			person.update({enabled:1 }).contains({ changedRows:1 }).async(),
 
-			person.insert({ name:"wolf"}).assertContains({ name:"wolf"}).async(),
-			person.insert({ name:"person1"}).assertContains({ name:"person1"}).async(),
-			person.insert({ name:"person2"}).assertContains({ name:"person2"}).async(),
-			person.insert({ name:"person3"}).assertContains({ name:"person3"}).async(),
-			person.find({name:"bob"}).assertContainsRow({name:"bob"}).assertRowsReturned(1).async(),
-			person.find(1).assertContainsRow({ name:"bob"}).async(),
+			person.insert({ name:"wolf"}).contains({ name:"wolf"}).async(),
+			person.insert({ name:"person1"}).contains({ name:"person1"}).async(),
+			person.insert({ name:"person2"}).contains({ name:"person2"}).async(),
+			person.insert({ name:"person3"}).contains({ name:"person3"}).async(),
+			person.find({name:"bob"}).containsRow({name:"bob"}).rowsReturned(1).async(),
+			person.find(1).containsRow({ name:"bob"}).async(),
 			person.find(function(q){ 
 				q.ne("name","wolf");
-			}).assertContainsRow({ name:"bob"}).async(),
-			person.update({ id: 1, name:"foo"}).assertContains({ changedRows: 1}).async(),
-			person.update({enabled:0}).where({name: "foo"}).assertContains({ changedRows: 1}).async(),
-			person.find({ id: 1 }).assertContainsRow({name:"foo", enabled:0 }).async(),
+			}).containsRow({ name:"bob"}).async(),
+			person.update({ id: 1, name:"foo"}).contains({ changedRows: 1}).async(),
+			person.update({enabled:0}).where({name: "foo"}).contains({ changedRows: 1}).async(),
+			person.find({ id: 1 }).containsRow({name:"foo", enabled:0 }).async(),
 			person.find(function(q){ 
 				//Do a find with no conditions
-			}).assertContainsRow({ name:"foo" }).assertRowsReturned(5).async(),
+			}).containsRow({ name:"foo" }).rowsReturned(5).async(),
 			person.find(function(q){ 
 				q.in("name",[ "bob","wolf","person1"]);
-			}).assertContainsRow({ name:"person1" }).assertContainsRow({name:"wolf"}).assertRowsReturned(2).async(),
+			}).containsRow({ name:"person1" }).containsRow({name:"wolf"}).rowsReturned(2).async(),
 			
 			person.find(function(q){ 
 				q.in("name",[ "bob","wolf","person1"]);	
@@ -72,70 +72,104 @@ var testUser = function(dialect,onComplete){
 					q.eq("name","person1");
 					q.eq("name","wolf");
 				});
-			}).assertContainsRow({ name:"person1" }).assertContainsRow({name:"wolf"}).assertRowsReturned(2).async(),
+			}).containsRow({ name:"person1" }).containsRow({name:"wolf"}).rowsReturned(2).async(),
 			
 			person.find(function(q){ 
 				q.lt("id",2);
-			}).assertContainsRow({ name:"foo"}).assertRowsReturned(1).async(),
+			}).containsRow({ name:"foo"}).rowsReturned(1).async(),
 			person.find(function(q){ 
 				q.lte("id",2);
-			}).assertContainsRow({ name:"foo"}).assertRowsReturned(2).async(),
-			person.update({ email:"test@foo.com"}).where({name:"wolf"}).assertContains({ changedRows:1 }).async(),
+			}).containsRow({ name:"foo"}).rowsReturned(2).async(),
+			person.update({ email:"test@foo.com"}).where({name:"wolf"}).contains({ changedRows:1 }).async(),
 			person.find(function(q){
 				q.notNull("email");
-			}).assertContainsRow({ name:"wolf", email:"test@foo.com"}).async(),
+			}).containsRow({ name:"wolf", email:"test@foo.com"}).async(),
 			
 			//Now let's create a profile
-			profile.insert({ personId:1, gender: "male", birthdate: date1 }).assertContains({ gender:"male", birthdate: date1}).async(),
-			profile.insert({ personId:2, gender: "female", birthdate: date2 }).assertContains({ gender:"female", birthdate: date2}).async(),
+			profile.insert({ personId:1, gender: "male", birthdate: date1 }).contains({ gender:"male", birthdate: date1}).async(),
+			profile.insert({ personId:2, gender: "female", birthdate: date2 }).contains({ gender:"female", birthdate: date2}).async(),
 
 			//Now let's load a profile and make sure the dates are good
-			profile.find().assertContainsRow({ gender:"male", birthdate: date1}).assertContainsRow({gender:"female",birthdate:date2}).async(),
+			profile.find().containsRow({ gender:"male", birthdate: date1}).containsRow({gender:"female",birthdate:date2}).async(),
 
 			//Let's do an inner join and make sure we get the two profiles
-			person.find().join(profile,"personId").assertContainsRow({ profile:{ gender:"male" }}).assertContainsRow({ profile:{ gender:"female"}}).assertRowsReturned(2).async(),
-			person.find().join(profile).assertContainsRow({ profile:{ gender:"male" }}).assertContainsRow({ profile:{ gender:"female"}}).assertRowsReturned(2).async(),
-			person.find().join(profile,"personId",{ gender:"male"}).assertContainsRow({ person: { id:1 }, profile:{ personId:1 }}).assertRowsReturned(1).async(),
+			person.find().join(profile,"personId").containsRow({ profile:{ gender:"male" }}).containsRow({ profile:{ gender:"female"}}).rowsReturned(2).async(),
+			person.find().join(profile).containsRow({ profile:{ gender:"male" }}).containsRow({ profile:{ gender:"female"}}).rowsReturned(2).async(),
+			person.find().join(profile,"personId",{ gender:"male"}).containsRow({ person: { id:1 }, profile:{ personId:1 }}).rowsReturned(1).async(),
 			
 			//Let's do an left join and make sure we get the two profiles
-			person.find().join(profile,"personId",null,{ type: "left"}).assertContainsRow({ profile:null}).assertRowsReturned(5).async(),
+			person.find().join(profile,"personId",null,{ type: "left"}).containsRow({ profile:null}).rowsReturned(5).async(),
 
-			vehicle.insert({ ownerId:1, make:"Mazda", model:"Miata" }).assertContains({ model:"Miata"}).async(),
-			vehicle.insert({ ownerId:1, make:"Ford", model:"F150" }).assertContains({ model:"F150"}).async(),
-			vehicle.insert({ ownerId:1, make:"Aston Martin", model:"Lagonda" }).assertContains({ model:"Lagonda"}).async(),
+			vehicle.insert({ ownerId:1, make:"Mazda", model:"Miata" }).contains({ model:"Miata"}).async(),
+			vehicle.insert({ ownerId:1, make:"Ford", model:"F150" }).contains({ model:"F150"}).async(),
+			vehicle.insert({ ownerId:1, make:"Aston Martin", model:"Lagonda" }).contains({ model:"Lagonda"}).async(),
 
 			
-			person.find().join(profile).join(vehicle,"driverId").assertRowsReturned(0).async(),
+			person.find().join(profile).join(vehicle,"driverId").rowsReturned(0).async(),
 			
-			person.find().join(profile,"personId").join(vehicle,"ownerId").assertContainsRow({ profile:{ gender:"male" }, vehicle: { model:"Miata" }}).assertRowsReturned(3).async(),
+			person.find().join(profile,"personId").join(vehicle,"ownerId").containsRow({ profile:{ gender:"male" }, vehicle: { model:"Miata" }}).rowsReturned(3).async(),
 			
-			vehicle.find().join(person,"driverId", null, { as: "driver", type: "left" }).join(person,"ownerId", null, { as:"owner"}).assertContainsRow({ owner:{ name:"foo" }, vehicle: { model:"Miata" }}).assertRowsReturned(3).async(),
+			vehicle.find().join(person,"driverId", null, { as: "driver", type: "left" }).join(person,"ownerId", null, { as:"owner"}).containsRow({ owner:{ name:"foo" }, vehicle: { model:"Miata" }}).rowsReturned(3).async(),
 			
-			vehicle.find().join(person,"driverId", null, { as: "driver", type: "left" }).join(person,"ownerId", { name:"foo"}, { as:"owner"}).assertRowsReturned(3).async(),
+			vehicle.find().join(person,"driverId", null, { as: "driver", type: "left" }).join(person,"ownerId", { name:"foo"}, { as:"owner"}).rowsReturned(3).async(),
 
-			vehicle.find().join(person,"driverId", null, { as: "driver", type: "left" }).join(person,"ownerId", { name:"foo"}, { as:"owner"}).join(profile,"personId",null,{ as:"ownerProfile", on: "owner" }).assertRowsReturned(3).async(),
+			vehicle.find().join(person,"driverId", null, { as: "driver", type: "left" }).join(person,"ownerId", { name:"foo"}, { as:"owner"}).join(profile,"personId",null,{ as:"ownerProfile", on: "owner" }).rowsReturned(3).async(),
 
+			vehicle.sqlQuery("update vehicle set model=?model1? where model=?model2?",{model1:'Miata', model2:'Miata'},"update").contains({changedRows:1}).async(),
+
+			vehicle.sqlQuery("select * from vehicle",{},"select").rowsReturned(3).containsRow({ model:"Miata" }).async(),
 
 			//Test Where Exp
-			vehicle.find().whereExp("model='Miata'").assertRowsReturned(1).assertContainsRow({ model:'Miata'}).async(),
+			vehicle.find().whereExp("model='Miata'").rowsReturned(1).containsRow({ model:'Miata'}).async(),
 			
-			vehicle.find().whereExp("0=1").assertRowsReturned(0).async(),
+			vehicle.find().whereExp("0=1").rowsReturned(0).async(),
 			
-			vehicle.find({make:"Jeep"}).whereExp(" and 0=1").assertRowsReturned(0).async(),
+			vehicle.find({make:"Jeep"}).whereExp(" and 0=1").rowsReturned(0).async(),
 			
-			vehicle.find().whereExp("model=?model?", { model: "Miata"} ).assertRowsReturned(1).assertContainsRow({ model:'Miata'}).async(),
+			vehicle.find().whereExp("model=?model?", { model: "Miata"} ).rowsReturned(1).containsRow({ model:'Miata'}).async(),
 
 
 			//Test Delete
-			vehicle.find().assertRowsReturned(3).async(),
+			vehicle.find().rowsReturned(3).async(),
 
-			vehicle.delete().where({model:"Lagonda"}).async(),
+			vehicle.delete().where({model:"Lagonda"}).assert("Can delete specific rows using where clause",function(q){
+													q.noError();
+												}),
 			
-			vehicle.find().assertRowsReturned(2).async(),
+			vehicle.find().assert("Rows were returned",function(q){
+													q.rowsReturned(2);
+													q.columnOnlyContains("model","Miata","F150");
+												}),
 			
-			vehicle.delete().async(),
+			vehicle.delete().assert("Delete all works",function(q){
+													q.noError();	
+												}),
 			
-			vehicle.find().assertRowsReturned(0).async(),
+			vehicle.find().assert("Nothing is returned after a delete",function(q){
+																																q.rowsReturned(0);
+																														}),
+
+			person.sqlQuery({ 
+													pg:"insert into <%tableName()%> (name,email) values(?name?,?email?) returning id",
+													'*':"insert into <%tableName()%> (name,email) values(?name?,?email?)"
+											},{name:'dennis', email:'email@email.com'},"insert").assert("Can use a regular SQL query with variables and mixins",function(q){
+																																q.contains({id:6});
+																														}),
+
+			person.insert({ name: "dennis", email:"Foo@foo.com"}).assert("Returns one common duplicate key error",function(q){
+													q.hasError("Duplicate key:name");
+											}),
+
+
+			person.find().page(0,2).orderBy("name","desc").orderBy("email","desc").assert("Can use multiple order by's",function(q){
+																																q.rowsReturned(2);
+																														}),
+			
+			person.find().page(0,2).orderBy(["name","email"],"asc").assert("Paginates and Sorts",function(q){
+																																q.rowsReturned(2)
+																																q.lastRowContains({ name: "foo"})
+																																q.firstRowContains({ name: "dennis"})
+																														})
 
 
 		],function(err,res){	
