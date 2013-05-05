@@ -1,3 +1,5 @@
+Build Status: [![Build Status](https://travis-ci.org/celer/okapi.png)](https://travis-ci.org/celer/okapi)
+
 Okapi is not an ORM
 ===================
 
