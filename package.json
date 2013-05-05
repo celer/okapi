@@ -8,12 +8,13 @@
     "test": "(cd test && node all.js)"
   },
   "devDependencies": {
-    "colors": "~0.6.0-1",
-    "prettyjson": "~0.8.1"
-  },
-	"dependencies": {
-    "mysql": "~2.0.0-alpha8",
+    "prettyjson": "~0.8.1",
     "pg": "~1.1.0",
+    "mysql": "~2.0.0-alpha8",
     "sqlite3": "~2.1.7"
+  },
+  "dependencies": {
+    "async": "~0.2.8",
+    "colors": "~0.6.0-1"
   }
 }

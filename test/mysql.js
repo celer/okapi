@@ -2,7 +2,7 @@ var DAO = require('../lib/mysql');
 require('../lib/assert')(DAO);
 var async = require('async');
 
-dialect = new DAO.MySQLDialect({  host:"localhost", user:"root", database:"dao", debug: true });
+dialect = new DAO.MySQLDialect({  host:"localhost", user:"root", database:"dao" });
 
 var pjson = require('prettyjson');
 var testUser = require('./user');
