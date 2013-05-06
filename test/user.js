@@ -70,6 +70,7 @@ var testUser = function(dialect,onComplete){
 										q.rowsReturned(1);
 									}),
 
+
 			person.find(function(q){ 
 				q.ne("name","wolf");
 			}).assert("Not equal to operater works in queries",function(q){
@@ -82,6 +83,16 @@ var testUser = function(dialect,onComplete){
 									}),
 
 			person.update({enabled:0}).where({name: "foo"}).assert("We can update a field in something using a conditional",function(q){
+										q.contains({ changedRows: 1});
+									}),
+			
+			person.update({enabled:1}).where({name: "foo"}).where({enabled:0}).assert("We can update a field in something using a conditional",function(q){
+										q.contains({ changedRows: 1});
+									}),
+			
+			person.update({enabled:0}).setExp(", enabled=0").where(function(q){
+										q.eq("name","foo");
+									}).whereExp(" and 1=1").assert("We can update a field in something using a conditional",function(q){
 										q.contains({ changedRows: 1});
 									}),
 
@@ -182,6 +193,13 @@ var testUser = function(dialect,onComplete){
 			vehicle.find().assert("There are things to delete",function(q){
 													q.rowsReturned(3);
 												}),
+			
+			function(onComplete){
+				dialect.sqlQuery("select * from vehicle where model=?model?",{model:'F150' },"select",function(err,res){
+					console.log(err,res);
+					return onComplete(err,res);
+				});
+			},
 
 			vehicle.delete().where({model:"Lagonda"}).assert("Can delete specific rows using where clause",function(q){
 													q.noError();
@@ -220,7 +238,11 @@ var testUser = function(dialect,onComplete){
 																																q.rowsReturned(2)
 																																q.lastRowContains({ name: "foo"})
 																																q.firstRowContains({ name: "dennis"})
-																														})
+																														}),
+			
+			person.find(1).columnExp({ sqlite:",date('now')", "*":",now()"}).assert("Can ask for an extra column",function(q){ 
+										q.rowsReturned(1);
+									}),
 
 
 		],function(err,res){	
