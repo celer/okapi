@@ -110,7 +110,7 @@ To use Okapi first we need to define the schema for the object we want to use:
 
 Okapi supports single and multi key indexes:
 
-``javascript
+```javascript
 	
 	//And create an index on name
 	Person.index("name",["name"]);
