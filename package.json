@@ -1,17 +1,18 @@
 {
   "name": "okapi",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "main": "index.js",
-  "tags": "mysql sqlite postgres sql orm",
-  "description": "Okapi is not an ORM! It fills the void between an ORM and a SQL toolkit",
+  "tags": "mysql sqlite postgres sql orm patio sequelize jugglingdb orm2",
+  "description": "Okapi is better then an ORM, it isn't one!",
   "scripts": {
-    "test": "(cd test && node all.js)"
+    "test": "(cd test && node test.js)"
   },
   "devDependencies": {
     "prettyjson": "~0.8.1",
     "pg": "~1.1.0",
     "mysql": "~2.0.0-alpha8",
-    "sqlite3": "~2.1.7"
+    "sqlite3": "~2.1.7",
+    "optimist": "~0.4.0"
   },
   "dependencies": {
     "async": "~0.2.8",
