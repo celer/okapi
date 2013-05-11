@@ -1,5 +1,5 @@
 
-[!Okapi Logo](https://raw.github.com/celer/okapi/master/media/okapi.png)
+![Okapi Logo](https://raw.github.com/celer/okapi/master/media/okapi.png)
 
 Build Status: [![Build Status](https://travis-ci.org/celer/okapi.png)](https://travis-ci.org/celer/okapi)
 
