@@ -3,8 +3,8 @@
 
 Build Status: [![Build Status](https://travis-ci.org/celer/okapi.png)](https://travis-ci.org/celer/okapi)
 
-Okapi is not an ORM
-===================
+Okapi is not an ORM, it is better!
+==================================
 
 Okapi aims at making SQL easier to use within Node.JS but isn't an ORM. 
 
@@ -406,6 +406,25 @@ selected via the where query
 Update template:
 ```jsp  
     update <%tableName()%> set <%sets()%> <%setExp()%> <? where <%where()%> <%whereExp()%> ?>
+```
+
+### Upserts
+
+Upserts are essentially statements that insert or update the row depending upon a primary key conflict. Essentially create or update a row, which is more efficient then
+doing and individual insert and update. 
+
+```javascript
+  Person.upsert({ id: 1, name:"Bob"}).done(....);
+```
+
+Upsert templates:
+  
+```jsp
+  //mysql
+  insert into <%tableName()%> (<%columns()%> <%columnExp()%>) values(<%values()%> <%valueExp()%>) on duplicate key update <%sets({ noPK: true })%> <%setExp()%>
+  //sqlite 
+  insert or replace into <%tableName()%> (<%columns()%> <%columnExp()%>) values(<%values()%> <%valueExp()%>)
+  //pg - update followed by insert
 ```
 
 ### Delete data

@@ -13,13 +13,13 @@ var testClone = function(dialect,onComplete){
   vehicle.column("model",{ type:Okapi.String, notNull: true });
   vehicle.column("year",{ type:Okapi.Number });
   vehicle.column("mileage", { type: Okapi.Number });
-
+  vehicle.column("transmission",{type:Okapi.String, values:["auto","manual"]});
 
 
   async.series([
     vehicle.dropTable().async(),
     vehicle.createTable().postCreateExp({ mysql: "ENGINE = MEMORY;" }).async(),
-    
+   
     vehicle.insert({ make:"Mazda", model:"Miata", year: 1993, mileage: 153032 }).async(),
     vehicle.insert({ make:"Ford", model:"F150", year: 2005, mileage: 34309 }).async(),
     vehicle.insert({ make:"Geo", model:"Metro", year: 1997  }).async(),
@@ -27,7 +27,7 @@ var testClone = function(dialect,onComplete){
     vehicle.update({ make:null, id:0 }).assert("Errors on null sets for not null columns in an update",function(q){
       q.hasError("make is a required value");
     },true),
-    
+   
     vehicle.insert({ year:1990 }).assert("Errors on null sets for not null columns in an insert",function(q){
       q.hasError("make is a required value");
     },true),
@@ -127,7 +127,15 @@ var testClone = function(dialect,onComplete){
         q.hasError("no such function");
       }
     },true),
-  
+    
+    vehicle.update({transmission:"auto"}).where().assert("Set valid value",function(q){
+      q.contains({ changedRows:3 });
+    }), 
+
+    vehicle.update({transmission:"foo"}).where().assert("Invalid value",function(q){
+      q.hasError("invalid value");
+    },true), 
+
   ],function(err,res){
 
     var r = { type: dialect.type, pass: Okapi.Assert.results.pass, fail: Okapi.Assert.results.fail };
