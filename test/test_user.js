@@ -149,7 +149,7 @@ var testUser = function(dialect,onComplete){
       person.find().join(profile,"personId",{ gender:"male"}).containsRow({ person: { id:1 }, profile:{ personId:1 }}).rowsReturned(1).async(),
       
       //Let's do an left join and make sure we get the two profiles
-      person.find().join(profile,"personId",null,{ type: "left"}).containsRow({ profile:null}).rowsReturned(5).async(),
+      person.find().join(profile,"personId",{ type: "left"}).containsRow({ profile:null}).rowsReturned(5).async(),
 
       vehicle.insert({ ownerId:1, make:"Mazda", model:"Miata" }).contains({ model:"Miata"}).async(),
       vehicle.insert({ ownerId:1, make:"Ford", model:"F150" }).contains({ model:"F150"}).async(),
@@ -160,11 +160,11 @@ var testUser = function(dialect,onComplete){
       
       person.find().join(profile,"personId").join(vehicle,"ownerId").containsRow({ profile:{ gender:"male" }, vehicle: { model:"Miata" }}).rowsReturned(3).async(),
       
-      vehicle.find().join(person,"driverId", null, { as: "driver", type: "left" }).join(person,"ownerId", null, { as:"owner"}).containsRow({ owner:{ name:"foo" }, vehicle: { model:"Miata" }}).rowsReturned(3).async(),
+      vehicle.find().join("driverId", person, { as: "driver", type: "left" }).join("ownerId", person, { as:"owner"}).containsRow({ owner:{ name:"foo" }, vehicle: { model:"Miata" }}).rowsReturned(3).async(),
       
-      vehicle.find().join(person,"driverId", null, { as: "driver", type: "left" }).join(person,"ownerId", { name:"foo"}, { as:"owner"}).rowsReturned(3).async(),
+      vehicle.find().join("driverId", person,{ as: "driver", type: "left" }).join("ownerId", person, { name:"foo"}, { as:"owner"}).rowsReturned(3).async(),
 
-      vehicle.find().join(person,"driverId", null, { as: "driver", type: "left" }).join(person,"ownerId", { name:"foo"}, { as:"owner"}).join(profile,"personId",null,{ as:"ownerProfile", on: "owner" }).rowsReturned(3).async(),
+      vehicle.find().join("driverId", person,{ as: "driver", type: "left" }).join("ownerId", person,{ name:"foo"}, { as:"owner"}, profile,{ as:"ownerProfile" }).rowsReturned(3).async(),
 
       vehicle.sqlQuery("update vehicle set model=?model1? where model=?model2?",{model1:'Miata', model2:'Miata'},"update").assert("Raw SQL Updates work",function(q){ 
                           q.contains({changedRows:1})

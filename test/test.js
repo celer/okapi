@@ -58,6 +58,7 @@ if(args.test && typeof args.test == "string"){
   tests.push(require('./test_user'));
   tests.push(require('./test_basic'));
   tests.push(require('./test_clone'));
+  tests.push(require('./test_join'));
   tests.push(require('./test_ops'));
   tests.push(require('./test_tx'));
 }
