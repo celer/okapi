@@ -490,7 +490,7 @@ Okapi doesn't have an explicit understanding of relationships, hence why it is n
   //If it can figure out how to join things it will just do it (as an inner join)
   Person.find().join(Profile).done(...).done(...)
 
-  //You can give it more details if it gets confused:
+  //You can give it more details if it gets confused, the second paramter after the DAO being the column to use. 
   Person.find().join(Profile,"userId").done(...);
 
   //You can tell also give it a query to use for your join:
@@ -503,8 +503,42 @@ Okapi doesn't have an explicit understanding of relationships, hence why it is n
 
   //And suppose you have multiple joins on the same table:
   Vehicle.find().join(Person,"ownerId", null,{ type: "left, as:"owner"}).join(Person,"driverId",null,{type:"left",as:"driver"}).done(...)
-  
+
+	//Or you want to do a join across linked tables
+  Vehicle.find().join("ownerID",person,{name:"b"},{ as:"owner"},profile,{as:"ownerProfile"}).join("driverID",person,{as:"driver"},profile, { as: "driverProfile"}).done(...)
 ```
+
+The join function expects a sequence like so:
+
+```javascript
+	(dao,column?,query?,options?)*
+```
+
+Where the only required parameter is the DAO, and everything else is optional - Okapi will figure out the rest if it can. With the first DAO being 
+implied by what it was chained upon, so for example:
+
+```javascript
+	Vehicle.find().join("ownerID",person,{name:"b"},{ as:"owner"},profile,{as:"ownerProfile"})
+```
+
+is interpreted as:
+
+```javascript
+	//inner join Vehicle.ownerId to
+	join(Vehicle,"ownerID",null,null) 
+	//inner join person (Okapi will resolve the correct id column) where name=="B" as "owner" to 
+	join(person,null,{name:"b"},{as:"owner"})
+	//inner join profile (Okapi will resolve the correct id column) as "ownerProfile"
+	join(profile,null,null,{as:"ownerProfile"})
+```
+
+The options have two possible values:
+	
+ * options
+  * as - what to name the resulting object
+  * type - the type of join to do (left, inner, etc)
+
+Joins may also use filtered DAOs as described below
 
 ### Transactions
 
@@ -528,6 +562,49 @@ Okapi doesn't have an explicit understanding of relationships, hence why it is n
   });
 
 ```
+### Filtered DAOs
+
+So to make it easy for you to filter a DAO, for example to restrict a view you can simply clone an existing DAO an apply a filter, and these filtered DAOs will even retain their filtering in joins!
+
+```javascript
+  var vehicle = new Okapi.Object(dialect,"vehicle");
+  vehicle.column("id",{type: Okapi.ID });
+  vehicle.column("make",{ type:Okapi.String });
+  vehicle.column("model",{ type:Okapi.String });
+
+  /* 
+    We will clone the object and make a new one
+    that is limited to dealing only with mazda
+  */
+  var mazdaOnly = vehicle.clone();
+  mazdaOnly.filter(function(q){
+    q.eq("make","Mazda");
+  });
+    
+	mazdaOnly.find().assert("Only contains mazda",function(q){
+		q.containsRow({ make:"Mazda", model:"Miata"});
+		q.rowsReturned(1);
+	}),
+```
+### Prepared statements
+
+For the most part Okapi constructs the statement or query at the time it is executed, but is possible to ask it to pre-construct a query that you want to run a bunch, allowing you
+to overwrite variables as needed. 
+
+```javascript
+	//This will create a prepared insert statement with a variable 'year' that can be overridden as needed:
+	var insert = vehicle.insert({ make:"mazda", model:"Miata",year:Okapi.$("year") }).prepare();
+
+	insert.exec({year:1997},function(err,result){  ... }), 
+
+	var find = vehicle.find(function(q){
+		q.eqVar("make","make");
+	}).prepare();
+
+	find.exec({ make:"mazda"},function(err,result){ ... }),
+```
+
+The exec statements will return an async function if no call back is provided for use with the async module.
 
 ### Notes
 

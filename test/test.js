@@ -61,6 +61,7 @@ if(args.test && typeof args.test == "string"){
   tests.push(require('./test_join'));
   tests.push(require('./test_ops'));
   tests.push(require('./test_tx'));
+  tests.push(require('./test_psql'));
 }
 
 var databases = {

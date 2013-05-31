@@ -11,7 +11,6 @@ var testClone = function(dialect,onComplete){
   vehicle.column("make",{ type:Okapi.String });
   vehicle.column("model",{ type:Okapi.String });
 
-
   /* 
     We will clone the object and make a new one
     that is limited to dealing only with mazda
