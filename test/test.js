@@ -130,6 +130,7 @@ async.mapSeries(tests,function(test,done){
   });
 
 },function(){
+	console.log("\n\nFor all tests:");
   console.log("-----------------------------------");
   if(tf>0){
     console.log(("Results: pass "+tp+" fail "+tf).red);
