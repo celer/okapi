@@ -106,7 +106,10 @@ var testClone = function(dialect,onComplete){
             
           dialect.sqlQuery(data,{},function(err,res){
             console.log(err,res);          
-            done();
+						if(err){
+							Okapi.Assert.results.fail++;
+						}
+            done(err,res);
           });
         });
       } else {
