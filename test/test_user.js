@@ -233,11 +233,17 @@ var testUser = function(dialect,onComplete){
                       },true),
 
 
-      person.find().page(0,2).orderBy("name","desc").orderBy("email","desc").assert("Can use multiple order by's",function(q){
-                                                                q.rowsReturned(2);
+      person.find().page(0).orderBy("name","desc").orderBy("email","desc").assert("Can use multiple order by's",function(q){
+                                                                q.rowsReturned(6);
                                                             }),
       
-      person.find().page(0,2).orderBy(["name","email"],"asc").assert("Paginates and Sorts",function(q){
+      person.find().page(0).orderBy(["name","email"],"asc").assert("Paginates and Sorts",function(q){
+                                                                q.rowsReturned(6)
+                                                                q.lastRowContains({ name: "wolf"})
+                                                                q.firstRowContains({ name: "dennis"})
+                                                            }),
+      
+      person.find().limit(2).offset(0).orderBy(["name","email"],"asc").assert("Paginates and Sorts",function(q){
                                                                 q.rowsReturned(2)
                                                                 q.lastRowContains({ name: "foo"})
                                                                 q.firstRowContains({ name: "dennis"})
