@@ -1,6 +1,6 @@
 {
   "name": "okapi",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "index.js",
   "tags": "mysql sqlite postgres sql orm patio sequelize jugglingdb orm2",
   "description": "Okapi is better then an ORM, it isn't one!",
