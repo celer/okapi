@@ -1,7 +1,8 @@
 
 ![Okapi Logo](https://raw.github.com/celer/okapi/master/media/okapi.png)
 
-Build Status: [![Build Status](https://travis-ci.org/celer/okapi.png)](https://travis-ci.org/celer/okapi)
+[![Build Status](https://travis-ci.org/celer/okapi.png)](https://travis-ci.org/celer/okapi)
+[![Depdendency Status](https://david-dm.org/celer/okapi.png)](https://david-dm.org/celer/okapi);
 
 Okapi is not an ORM, it is better!
 ==================================
@@ -153,6 +154,16 @@ all the other callbacks in NodeJS work.
   //This will return all people in the database
   Person.find().done(function(err,result){
     //Returns an array of people
+  });
+
+  // .last() and .each() are also available
+  Person.find().first(function(err,firstPerson){
+    //Returns the first result
+  });
+  
+  //This will return the first 5 people
+  Person.find().limit(5).offset(0).done(function(err,result){
+
   });
   
   Person.insert({ name: "Bob"}).done(function(err,result){
