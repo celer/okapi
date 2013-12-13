@@ -90,6 +90,12 @@ var testUser = function(dialect,onComplete){
                     q.contains({ changedRows: 1});
                   }),
       
+      person.update({enabled:1},function(q){
+                    q.eq("name","foo");
+                  }).assert("We can update a field in something using a conditional",function(q){
+                    q.contains({ changedRows: 1});
+                  }),
+      
       person.update({email:'hello'}).setExp(", enabled=0").where(function(q){
                     q.eq("name","foo");
                   }).whereExp(" and 1=1").assert("We can update a field in something using a conditional",function(q){

@@ -2,6 +2,7 @@ var Okapi = require('../index');
 var assert = require('assert');
 var async = require('async');
 var fs = require('fs');
+var path = require('path');
 
 var testClone = function(dialect,onComplete){
   Okapi.Assert.reset();
@@ -63,7 +64,7 @@ var testClone = function(dialect,onComplete){
       q.containsRow({ make:"Geo"});
       q.rowsReturned(2);
     }),
-
+    
     vehicle.find(function(q){
       q.or(function(q){
         q.eq("make","Ford");
@@ -74,6 +75,16 @@ var testClone = function(dialect,onComplete){
       q.containsRow({ make:"Geo"});
       q.rowsReturned(2);
     }),
+
+    vehicle.find(function(q){
+      q.and(function(q){
+        q.eq("make","Ford");
+        q.eq("model","F150");
+      });  
+    }).assert("Finds F150",function(q){
+      q.containsRow({ make:"Ford"});
+      q.rowsReturned(1);
+    }),
     
     
     vehicle.find(function(q){
@@ -83,6 +94,24 @@ var testClone = function(dialect,onComplete){
       q.containsRow({ make:"Geo"});
       q.rowsReturned(2);
     }),
+
+    function testFirst(done){
+      vehicle.find(function(q){
+        q.gte("year","1994");
+      }).orderBy("year","asc").first(function(err, res){
+        assert.equal(res.make,"Geo");
+        done();
+      });
+    },
+
+    function testLast(done){
+      vehicle.find(function(q){
+        q.gte("year","1994");
+      }).orderBy("year","asc").last(function(err, res){
+        assert.equal(res.make,"Ford");
+        done();
+      });
+    },
 
     vehicle.find(function(q){
       q.isNull("mileage");
@@ -101,7 +130,9 @@ var testClone = function(dialect,onComplete){
 
     function(done){
       if(dialect.type=="pg"){
-        fs.readFile("soundex.sql",function(err,data){
+        var soundexFile = path.resolve(__dirname,"soundex.sql");
+        console.log(soundexFile);
+        fs.readFile(soundexFile,function(err,data){
           data = data.toString();
             
           dialect.sqlQuery(data,{},function(err,res){
