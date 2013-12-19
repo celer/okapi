@@ -473,6 +473,9 @@ Delete template:
     });
   }).async(),
 
+  //This will perform a find and only return the specified columns
+  Profile.find().columns("age","gender").async(),
+
   
   //This will join across user and profile
   Profile.find({gender:"male"}).join(user,"userId").async(),
@@ -511,6 +514,9 @@ Okapi doesn't have an explicit understanding of relationships, hence why it is n
 
   //You can even tell it what type of join to use:
   Person.find().join(Profile,"userId",null,{ type:"left"}).done(...)
+  
+  //Or you can even tell it what columns to return:
+  Person.find().join(Profile,"userId",null,{ columns:["age","gender"]}).done(...)
 
   //And suppose you have multiple joins on the same table:
   Vehicle.find().join(Person,"ownerId", null,{ type: "left, as:"owner"}).join(Person,"driverId",null,{type:"left",as:"driver"}).done(...)

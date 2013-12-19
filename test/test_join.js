@@ -9,8 +9,10 @@ var testClone = function(dialect,onComplete){
   var person = new Okapi.Object(dialect,"person");
   person.column("id",Okapi.ID);
   person.column("name",Okapi.String);
+  person.column("test",Okapi.String);
   
   var profile = new Okapi.Object(dialect,"profile");
+  profile.column("id",Okapi.ID);
   profile.column("userID",{ type: Okapi.IDRef, ref: { dao: person, column:"id"}});
   profile.column("email",Okapi.String);   
   
@@ -31,18 +33,32 @@ var testClone = function(dialect,onComplete){
       profile.createTable().async(),
       vehicle.createTable().async(),
  
-      person.insert({ name:"a"}).async(),    
+      person.insert({ name:"a", test:"a"}).async(),    
       profile.insert({ email:"a@a.com", userID: 1 }).async(),      
       
-      person.insert({ name:"b"}).async(),    
+      person.insert({ name:"b", test:"b"}).async(),    
       profile.insert({ email:"b@a.com", userID: 2 }).async(),      
 
-      person.insert({ name:"c"}).async(),    
+      person.insert({ name:"c", test:"c"}).async(),    
       profile.insert({ email:"b@c.com", userID: 3 }).async(),      
       
       vehicle.insert({ driverID: 1, ownerID: 2, validTo: new Date() }).async(),
       vehicle.insert({ driverID: 2, ownerID: 1, validTo: new Date() }).async(),
- 
+
+      profile.find().join(person).assert("Basic join works",function(q){
+        q.rowsReturned(3);
+      }),
+
+      vehicle.find().columns("driverID","id").join("ownerID",person, { columns: ["test"] }).assert("Basic find/w column works",function(q){
+        q.rowsReturned(2);
+        q.containsExactRow({ person: { test: 'a' }, vehicle: { id: 2, driverID: 2 }});
+      }),
+      
+      vehicle.find().columns("driverID","id").assert("Basic find/w column works",function(q){
+        q.rowsReturned(2);
+        q.containsExactRow({ id: 2, driverID: 2 });
+      }),
+   
       vehicle.find().join("ownerID",person,{name:"b"},{ as:"owner"}).join("driverID",person,{as:"driver"}).assert("Returns a single row",function(q){
         q.rowsReturned(1);
         q.containsRow({ driver: { name:"a"}, owner: { name:"b"}});
