@@ -21,7 +21,7 @@ var config={
   },
   pg:{
     host: "localhost",
-    user: "postgres",
+    user: "celer",
     database: "okapi"
   },
   sqlite:{

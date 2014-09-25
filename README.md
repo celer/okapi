@@ -174,6 +174,10 @@ all the other callbacks in NodeJS work.
     //Returns the number of changed rows
   });
 
+  Person.update({ email:"email@email.com"}).where({name:"Bob"}).done(function(err,result){
+    //Returns the number of rows
+  });
+
   Person.delete({ id:1 }).done(function(err,result){
     
   });

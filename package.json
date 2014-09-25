@@ -1,7 +1,8 @@
 {
   "name": "okapi",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "main": "index.js",
+  "repository": "https://github.com/celer/okapi/",
   "tags": "mysql sqlite postgres sql orm patio sequelize jugglingdb orm2",
   "description": "Okapi is better then an ORM, it isn't one!",
   "scripts": {
@@ -9,13 +10,15 @@
   },
   "devDependencies": {
     "prettyjson": "~0.8.1",
-    "pg": "~1.1.0",
-    "mysql": "~2.0.0-alpha8",
-    "sqlite3": "~2.1.7",
+    "pg": "^3.4.4",
+    "mysql": "^2.5.1",
+    "sqlite3": "^3.0.0",
     "optimist": "~0.4.0"
   },
   "dependencies": {
-    "async": "~0.2.8",
-    "colors": "~0.6.0-1"
+    "async": "^0.9.0",
+    "colors": "~0.6.0-1",
+    "optimist": "^0.6.1",
+    "prettyjson": "^1.0.0"
   }
 }

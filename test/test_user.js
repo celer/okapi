@@ -26,21 +26,40 @@ var testUser = function(dialect,onComplete){
 
     var vehicle = new Okapi.Object(dialect,"vehicle");
 
+    vehicle.column("id",{type:Okapi.ID });
     vehicle.column("ownerId",{ type:Okapi.IDRef, ref: { dao: person, column:"id"}});
     vehicle.column("driverId",{ type:Okapi.IDRef, ref: { dao: person, column:"id"}});
     vehicle.column("make",{ type:Okapi.String });
     vehicle.column("model",{ type:Okapi.String });
 
+
+    var sr = new Okapi.Object(dialect,"service_record");
+    sr.column("id",{type:Okapi.ID });
+    sr.column("vehicleId",{type:Okapi.IDRef, ref:{dao: vehicle, column:"id"}});
+    sr.column("created",{type:Okapi.Date });
+
+  
+    var sr_note = new Okapi.Object(dialect,"service_record_note");
+    sr_note.column("id",{type:Okapi.ID });
+    sr_note.column("srId",{type:Okapi.IDRef, ref:{dao: sr, column:"id"}});
+    sr_note.column("note",{ type:Okapi.String });
+    
+      
+
     var date1 = new Date(1977,8,30, 5,5,5);
     var date2 = new Date(1970,1,3, 4,4,4);
+ 
+ 
+
 
     async.series([
-      (vehicle.dropTable().async()),
-      (profile.dropTable().async()),
-      (person.dropTable().async()),
-      (person.createTable().async()),
-      (profile.createTable().async()),
-      (vehicle.createTable().async()),
+      (function(done){ 
+        Okapi.dropTables(sr_note,sr,vehicle,profile,person,function(err,res){
+          Okapi.createTables(sr_note,sr,vehicle,profile,person,function(err,res){
+            done(err);
+          });
+        });
+      }),
 
 
       person.insert({ name:"bob" }).assert("Basic inserts with strings work",function(q){ 
@@ -161,6 +180,27 @@ var testUser = function(dialect,onComplete){
       vehicle.insert({ ownerId:1, make:"Ford", model:"F150" }).contains({ model:"F150"}).async(),
       vehicle.insert({ ownerId:1, make:"Aston Martin", model:"Lagonda" }).contains({ model:"Lagonda"}).async(),
 
+
+
+      sr.insert({vehicleId:1}).async(),
+      sr_note.insert({srId:1, note:"note1"}).async(),
+      sr_note.insert({srId:1, note:"note2"}).async(),
+      sr_note.insert({srId:1, note:"note3"}).async(),
+      sr_note.insert({srId:1, note:"note4"}).async(),
+
+
+      person.find().join(vehicle,sr,sr_note).assert("Multitable joins work",function(q){
+        q.containsRow({ service_record_note:{ note: "note1"}});
+        q.containsRow({ service_record_note:{ note: "note2"}});
+        q.containsRow({ service_record_note:{ note: "note3"}});
+        q.containsRow({ service_record_note:{ note: "note4"}});
+      }),
+
+      sr_note.delete().async(),
+      sr.delete().async(),
+
+
+
       
       person.find().join(profile).join(vehicle,"driverId").rowsReturned(0).async(),
       
@@ -218,7 +258,9 @@ var testUser = function(dialect,onComplete){
                           q.rowsReturned(2);
                           q.columnOnlyContains("model","Miata","F150");
                         }),
-      
+     
+
+ 
       vehicle.delete().assert("Delete all works",function(q){
                           q.noError();  
                         }),
