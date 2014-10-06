@@ -122,7 +122,7 @@ To use Okapi first we need to define the schema for the object we want to use:
  - notNull (boolean) - this column may not be null
  - default - the default value for this column
  - ref     - the information associated with this reference
-  - ref.dao - the day this reference refers to 
+  - ref.dao - the dao this reference refers to 
   - ref.column - the column in the referred dao that joins to this one
 
 
