@@ -1,7 +1,7 @@
 var pjson = require('prettyjson');
 
 var Okapi = require('../index');
-
+var cfg = require("../cfg").ssdb;
 Okapi.log=true;
 
 var optimist = require('optimist');
@@ -14,6 +14,14 @@ var tests  = [];
 
 
 var config={
+  mssql:{
+    server: cfg.server,
+    user: cfg.user,
+    password: cfg.password,
+    database: cfg.database,
+    stream: cfg.stream,
+    pool: cfg.pool
+  },
   mysql:{
     host: "localhost",
     user: "root",
@@ -67,6 +75,7 @@ if(args.test && typeof args.test == "string"){
 var databases = {
 
   mysql:new Okapi.MySQLDialect({  host:"localhost", user:"root", database:"okapi" }),
+  mssql:new Okapi.MsSQLDialect({ server: cfg.server, user: cfg.user, pool: cfg.pool, stream: cfg.stream, password: cfg.password }),
   pg:new Okapi.PGSQLDialect({  host:"localhost", user:"postgres", database:"okapi"}),
   sqlite:new Okapi.SQLiteDialect(new sqlite.Database(":memory:")),
 };

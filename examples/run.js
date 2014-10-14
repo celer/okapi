@@ -24,6 +24,11 @@ var config={
   },
   sqlite:{
     database: ":memory:"
+  },
+  mssql:{
+    server:"10.0.1.172",
+    user:"sa",
+    database:"testSSDB"
   }
 }
 

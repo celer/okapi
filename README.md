@@ -40,7 +40,12 @@ Sqlite
 ```shell
   npm install sqlite3
 ```
-  
+
+MsSqlServer
+```shell
+  npm install mssql
+```
+
 ### 2 Install okapi
 
 ```shell
@@ -60,6 +65,9 @@ var dialect = new Okapi.PGSQLDialect({  host:"localhost", user:"postgres", datab
 
 //For SQLite
 var dialect = new Okapi.SQLiteDialect(new sqlite.Database(":memory:"));
+
+//For MsSqlServer
+var dialect = new Okapi.MsSqlDialect({ server: "localhost[/namedInstance]", user:"sa", database:"okapi", password:"..."});
 
 ```
 
